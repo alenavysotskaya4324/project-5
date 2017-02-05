@@ -10,13 +10,12 @@ class FSM {
     constructor(config) {
 		if(config===null)
 			throw Error();
+		
 		this.FSM=config;
 		this.arrayOfStates=[config.initial];
+		this.arrayOfMoves=[];
 		this.popState=[];
-		//console.log(this.arrayOfStates);
-		this.currState=config.initial;
-		//this.states=config.states;
-		
+		this.currState=config.initial;	
 	}
 
     /**
@@ -24,7 +23,7 @@ class FSM {
      * @returns {String}
      */
     getState() {
-		//console.log(this.currState);
+
 		return this.currState;
 	}
 
@@ -36,10 +35,10 @@ class FSM {
 		if(state in this.FSM.states) {
 			this.currState=state;
 			this.arrayOfStates.push(this.currState);
-			//console.log(this.arrayOfStates);
+			
+			this.arrayOfMoves.push(1);
 		}
 		else throw Error();
-		//console.log(this.currState);
 	}
 
     /**
@@ -50,9 +49,10 @@ class FSM {
 		if(event in this.FSM.states[this.currState].transitions) {
 			this.currState=this.FSM.states[this.currState].transitions[event];
 			this.arrayOfStates.push(this.currState);
+			
+			this.arrayOfMoves.push(0);
 		}
 		else throw Error();
-		//console.log(this.currState);
 	}
 
     /**
@@ -61,7 +61,8 @@ class FSM {
     reset() {
 		this.currState=this.FSM.initial;
 		this.arrayOfStates.push(this.currState);
-		//console.log(this.currState);
+		
+		this.arrayOfMoves.push(0);
 	}
 
     /**
@@ -82,7 +83,7 @@ class FSM {
 				if(event in this.FSM.states[st].transitions)
 						accessStates.push(st);
 	}
-		//console.log(accessStates);
+
 		return accessStates;
 	}
 
@@ -92,14 +93,15 @@ class FSM {
      * @returns {Boolean}
      */
     undo() {
-		//console.log(this.arrayOfStates.length);
 		if(this.arrayOfStates.length===1 || this.arrayOfStates.length===0) 
 			return false;
 		else{
 			this.popState.push(this.currState);
 			this.arrayOfStates.pop(this.arrayOfStates.length-1);
 			this.currState=this.arrayOfStates[this.arrayOfStates.length-1];
-			//console.log(this.arrayOfStates);
+			
+			this.arrayOfMoves.push(0);
+
 			return true;
 		}
 	}
@@ -113,15 +115,15 @@ class FSM {
 		var st;
 		if(((this.arrayOfStates.length===1 || this.arrayOfStates.length===0) && this.popState.length===0) 
 			|| (this.popState.length===0)
-			|| (this.popState[this.popState.length-1]===this.currState))
+			|| (this.popState[this.popState.length-1]===this.currState)
+			|| (this.arrayOfMoves[this.arrayOfMoves.length-1]===1))
 			return false;
-		else{	
-			
+		else{				
 			this.currState=this.popState[this.popState.length-1];
-			//console.log(this.currState);
 			this.popState.pop(this.popState.length-1);
 			this.arrayOfStates.push(this.currState);
-			//console.log(this.arrayOfStates);
+			this.arrayOfMoves.push(0);
+			
 			return true;
 		}
 		
@@ -133,7 +135,6 @@ class FSM {
     clearHistory() {
 		while(this.arrayOfStates.length!==0)
 			this.arrayOfStates.pop(this.arrayOfStates.length-1);	
-		
 	}
 	
 	
